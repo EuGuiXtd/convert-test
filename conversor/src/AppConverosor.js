@@ -1,11 +1,11 @@
 import { useState } from "react";
+import Swal from "sweetalert2";
 
 function Conversor() {
 
   const [inputRomano, setinputRomano] = useState("");
   const [inputDecimal, setinputDecimal] = useState("");
   const [conversor, setconversor] = useState("romano");
-  const [resultado, setresultado] = useState("decimal");
 
   const handleInput = (event) => {
     const { name,value } = event.target;
@@ -50,7 +50,7 @@ function Conversor() {
 
   const converterDecimal = (decimal) => {
     const romanos = [
-      ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"],
+      ["", "I","II", "III", "IV", "V", "VI", "VII", "VIII", "IX"],
       ["", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"],
       ["", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"],
       ["", "M", "MM", "MMM", "MMMM"],
@@ -71,70 +71,147 @@ function Conversor() {
   const trocar = () => {
     if (conversor === "romano") {
       setconversor("decimal");
-      setresultado("romano");
       setinputDecimal("");
       setinputRomano("");
     } else {
       setconversor("romano");
-      setresultado("decimal");
       setinputDecimal("");
       setinputRomano("");
+    }
+  };
+
+  const converter = () => {
+    if (conversor === "decimal" && (inputDecimal < 1 || inputDecimal > 3999)) {errorDecimal()
+    } else if (conversor === "romano" && (converterRomano(inputRomano) < 1 || converterRomano(inputRomano) > 3999)) {
+      errorRomano()
+    } else if (conversor === "romano") {
+      setinputDecimal(converterRomano(inputRomano))
+    } else if (conversor === "decimal") {
+      setinputRomano(converterDecimal(inputDecimal))
+    } 
+  }
+
+  const alertVazio = () => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Digite um numero para converter!',
+    })
+  };
+
+  const errorDecimal = () => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Digite um numero de 1 até 3999!',
+    })
+  };
+
+  const errorRomano = () => {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Digite um numero de I até MMMCMXCIX!',
+    })
+  };
+
+const handleKeyDown = (event) => {
+    if (event.keyCode === 13 && conversor === "romano" && inputRomano === ""){
+       alertVazio()
+    } else if (event.keyCode === 13 && conversor === "decimal" && inputDecimal === ""){
+       alertVazio()
+    } else if (event.keyCode === 13){
+      converter();
     }
   };
 
 
   return (
     <>
-      <h1>
+      <h1 style={{textAlign: "center", paddingBottom: "5px"}}>
         Conversor de numeros
       </h1>
       { conversor === "romano" ? 
-        <>
+        <div class="input-group">
          <input
            type='text'
            name='inputRomano'
+           class="form-control"
+           style={ { textAlign: "center" } }
+           aria-describedby="button-addon4"
            value={inputRomano}
            onChange={handleInput}
-           placeholder={resultado === "romano" ? "Veja aqui o valor romano" : "Digite um numero romano"} 
+           onKeyUp={handleKeyDown}
+           placeholder={conversor === "romano" ? "Digite um numero romano" : "Veja aqui o valor romano"} 
           />
           <input
             type='number'
             name='inputDecimal'
+            class="form-control"
+            style={ { textAlign: "center" } }
+            aria-describedby="button-addon4"
             value={inputDecimal}
             onChange={handleInput}
-            placeholder={resultado === "decimal" ? "Veja aqui o valor decimal" : "Digite um numero decimal"} 
+            placeholder={conversor === "decimal" ? "Digite um numero decimal" : "Veja aqui o valor decimal"} 
           />
-        </>
-         :
-        <>
-         <input
-           type='number'
-           name='inputDecimal'
-           value={inputDecimal}
-           onChange={handleInput}
-           placeholder={resultado === "decimal" ? "Veja aqui o valor decimal" : "Digite um numero decimal"} 
-          />
-          <input
-            type='text'
-            name='inputRomano'
-            value={inputRomano}
-            onChange={handleInput}
-            placeholder={resultado === "romano" ? "Veja aqui o valor romano" : "Digite um numero romano"}
-          />
-         </> 
-      }
-      <button
+          <div class="input-group-append" id="button-addon4">
+                <button
         type='button'
-        onClick={conversor === "romano" ? () => setinputDecimal(converterRomano(inputRomano)) : () => setinputRomano(converterDecimal(inputDecimal)) }
+        onClick={ () => converter()}
+        class="btn btn-outline-secondary"
       >
         Converter
       </button>
       <button
         type='button'
         onClick={ trocar }
+        class="btn btn-outline-secondary"
       >
         Trocar
       </button>
+      </div>
+        </div>
+         :
+        <div class="input-group">
+         <input
+           type='number'
+           name='inputDecimal'
+           class="form-control"
+           style={ { textAlign: "center" } }
+           aria-describedby="button-addon4"
+           value={inputDecimal}
+           onChange={handleInput}
+           onKeyUp={handleKeyDown}
+           placeholder={conversor === "decimal" ? "Digite um numero decimal" : "Veja aqui o valor decimal"} 
+          />
+          <input
+            type='text'
+            name='inputRomano'
+            class="form-control"
+            style={ { textAlign: "center" } }
+            aria-describedby="button-addon4"
+            value={inputRomano}
+            onChange={handleInput}
+            placeholder={conversor === "romano" ? "Digite um numero romano" : "Veja aqui o valor romano"}
+          />
+          <div class="input-group-append" id="button-addon4">
+                <button
+        type='button'
+        onClick={ () => converter()}
+        class="btn btn-outline-secondary"
+      >
+        Converter
+      </button>
+      <button
+        type='button'
+        onClick={ trocar }
+        class="btn btn-outline-secondary"
+      >
+        Trocar
+      </button>
+      </div>
+         </div> 
+      }
     </>
   );
 }
